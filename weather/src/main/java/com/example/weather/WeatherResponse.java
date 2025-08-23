@@ -1,5 +1,7 @@
 package com.example.weather;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -7,34 +9,24 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class WeatherResponse {
     
-    @JsonProperty("weather")
-    private Main main;
+   private int count;
+    @JsonProperty("list")
+    private List<WeatherData> list;
 
-    public Main getMain(){
-        return main;
+    public int getCount() {
+        return count;
     }
-    public void setMain(Main main) {
-        this.main = main;
+    public void setCount(int count) {
+        this.count = count;
+           
     }
-   
-
-    public static class Main{
-        @JsonProperty("temp")
-        private Double temp;
-
-
-        public Double getTemp() {
-            return temp;
-        }
-
-        public void setTemp(double temp) {
-            this.temp = temp;
-        }
-
-       
-        
+    public List<WeatherData> getList() {
+        return list;
+    }
+    public void setList(List<WeatherData> list) {
+        this.list = list;
     }
     
-
-
 }
+
+
