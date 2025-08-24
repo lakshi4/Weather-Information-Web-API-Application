@@ -34,6 +34,7 @@ public class WeatherData {
         private int humidity;
         private int pressure;
 
+
         @JsonProperty("temp_min")
         private double temp_min;
 
@@ -77,6 +78,8 @@ public class WeatherData {
         private String country;
         private long sunrise;
         private long sunset;
+        private double windSpeed;
+        private String windDirection;
 
         public long getSunrise() {
             return sunrise;
@@ -97,6 +100,19 @@ public class WeatherData {
 
         public void setCountry(String country) {
             this.country = country;
+        }
+        public double getWindSpeed() {
+            return windSpeed;
+        }
+        public void setWindSpeed(double windSpeed) {
+            this.windSpeed = windSpeed;
+        }
+
+        public String getWindDirection() {
+            return windDirection;
+        }   
+        public void setWindDirection(String windDirection) {
+            this.windDirection = windDirection;
         }
     }
 
