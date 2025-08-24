@@ -1,14 +1,33 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth0 } from "@auth0/auth0-react";  
+import AuthButton from "./AuthButton";  
 import './Dashboard.css';
 
+
 const Dashboard = () => {
+  const { isAuthenticated, isLoading } = useAuth0();
   const [cities, setCities] = useState([]);
   const [weatherList, setWeatherList] = useState([]);
   const [cityName, setCityName] = useState('');
   const [loading, setLoading] = useState(false);
   const [savedWeather, setSavedWeather] = useState([]);
   const navigate = useNavigate();
+
+    // If Auth0 still loading
+
+  if (isLoading) return <div>Loading authentication...</div>;
+
+   // If not logged in
+  if (!isAuthenticated) {
+    return (
+      <div className="login-page">
+        <h2>Please log in to  the Weather App</h2>
+        <AuthButton />
+      </div>
+    );
+  }
 
   useEffect(() => {
     // Fetch city list from backend
@@ -35,6 +54,7 @@ const Dashboard = () => {
     }
   }, [cities]);
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     // Load saved weather cards from localStorage
     const saved = JSON.parse(localStorage.getItem('savedWeatherCities') || '[]');
@@ -59,9 +79,11 @@ const Dashboard = () => {
     '#4e8cff', '#7c4dff', '#00b894', '#fdcb6e', '#d63031', '#0984e3'
   ];
 
+  
   return (
     <div className="dashboard">
       <h2>Weather App</h2>
+      <AuthButton />
       <form onSubmit={handleSearch} className="search-bar">
         <input
           type="text"
