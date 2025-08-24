@@ -1,20 +1,20 @@
 import React , {useState,useEffect} from 'react'
 import { FaSearch, FaArrowLeft , FaCloud, FaSun, FaCloudSun, FaCloudRain, FaSnowflake } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
 import './Weather.css'
 
-//import clear_icon from '../assets/clear.png'
-//import humidity_icon from '../assets/humidity.png'
-
-
 const Weather = () => {
-    const [city, setCity] = useState('');
+    const [cityName, setCity] = useState('');
     const [weatherData, setWeatherData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [savedMsg, setSavedMsg] = useState('');
+    const navigate = useNavigate();
 
 
      // Get appropriate weather icon based on condition
   const getWeatherIcon = (description) => {
+    if (!description || typeof description !== 'string') return <FaCloudSun className="weather-icon" />;
     if (description.includes('Clear')) return <FaSun className="weather-icon" />;
     if (description.includes('Cloud')) return <FaCloud className="weather-icon" />;
     if (description.includes('Rain')) return <FaCloudRain className="weather-icon" />;
@@ -32,7 +32,23 @@ const Weather = () => {
                 throw new Error('City not found');
             }
             const data = await response.json();
-            setWeatherData(data);
+            // Map API response to expected frontend structure
+            setWeatherData({
+                city: data.name,
+                country: data.sys?.country,
+                temperature: data.main?.temp,
+                description: data.weather && data.weather[0] ? data.weather[0].description : '',
+                temp_min: data.main?.temp_min,
+                temp_max: data.main?.temp_max,
+                pressure: data.main?.pressure,
+                humidity: data.main?.humidity,
+                visibility: data.visibility,
+                windSpeed: data.wind?.speed,
+                windDirection: data.wind?.deg,
+                sunrise: data.sys?.sunrise,
+                sunset: data.sys?.sunset,
+            });
+            setCity(data.name && data.sys?.country ? `${data.name}, ${data.sys.country}` : data.name); // Show city and country in search bar
         } catch (err) {
             setError(err.message);
             setWeatherData(null);
@@ -43,14 +59,32 @@ const Weather = () => {
 
     const handleSearch =(e) =>{
         e.preventDefault();
-        if (city.trim()) {
-            fetchWeatherData(city.trim());
+        if (cityName.trim()) {
+            fetchWeatherData(cityName.trim());
+        }
+    };
+
+    const handleSaveToDashboard = () => {
+        if (weatherData) {
+            // Save city weather to localStorage (can be replaced with backend API)
+            let savedCities = JSON.parse(localStorage.getItem('savedWeatherCities') || '[]');
+            // Avoid duplicates
+            if (!savedCities.find(c => c.city === weatherData.city && c.country === weatherData.country)) {
+                savedCities.push(weatherData);
+                localStorage.setItem('savedWeatherCities', JSON.stringify(savedCities));
+                setSavedMsg('Saved to dashboard!');
+                setTimeout(() => setSavedMsg(''), 2000);
+            } else {
+                setSavedMsg('Already saved!');
+                setTimeout(() => setSavedMsg(''), 2000);
+            }
         }
     };
 
     //Load default city
-   useEffect(() => {
-  fetch("http://localhost:8080/weather/Colombo")
+useEffect(() => {
+  const defaultCity = 'Colombo'; // Use a city from cities.json
+  fetch(`http://localhost:8080/weather/${defaultCity}`)
     .then(res => {
       if (!res.ok) {
         throw new Error("Failed to fetch weather data");
@@ -65,15 +99,41 @@ const Weather = () => {
 }, []);
 
 
+    // Format UNIX timestamp to local time string
+    const formatTime = (timestamp) => {
+        if (!timestamp) return '';
+        const date = new Date(timestamp * 1000);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
   return (
     <div className = 'weather' >
        <div className= "weatherCard">
-            <div claaName= "search-section">
+            {/* Navigation button at top left */}
+            <button
+              className="nav-back-btn"
+              style={{
+              
+                top: '10px',
+                left: '10px',
+                background: 'none',
+                border: 'none',
+                fontSize: '2rem',
+                cursor: 'pointer',
+              
+                zIndex: 2
+              }}
+              onClick={() => navigate('/')}
+              aria-label="Back to Dashboard"
+            >
+              <FaArrowLeft />
+            </button>
+            <div className= "search-section">
                 <form onSubmit={handleSearch} className ="search-bar">
                     <input 
                     type="text"
                     placeholder ="Search City Name"
-                    value={city}
+                    value={cityName}
                     onChange={(e)=> setCity(e.target.value)}
                     />  
                     <button type="submit">
@@ -86,19 +146,26 @@ const Weather = () => {
 
             {error && (
                 <div className ="error">
-                    <P>{error}</P>
-                    <button onClick={()  =>fetchWeatherData('')}>
-                    <FaArrowLeft /> Back
+                    <p>{error}</p>
+                    <button onClick={() => {
+                        setError(null);
+                        setWeatherData(null);
+                        setCity('');
+                        navigate('/');
+                    }}>
+                        <FaArrowLeft /> Back
                     </button>
-                    </div>
-
+                </div>
             )}
 
 
             {weatherData && !loading &&(
                 <>
                 <div className ="location-time">
-                    <h1 className ="location">{weatherData.city}, {weatherData.country}</h1>
+                    <h1 className ="location">
+                        {weatherData.city}
+                        {weatherData.country ? `, ${weatherData.country}` : ''}
+                    </h1>
                     <p className="time">{weatherData.time}</p>
                 </div>
 
@@ -117,77 +184,67 @@ const Weather = () => {
                 <div className="weather-details">
                     <div className ="detail-row">
                         <div className="detail-item">
-                            <span className="lable">Pressure:</span>
-                            <span className="value">{weatherData.pressure}hPa</span>
+                            <span className="label">Pressure:</span>
+                            <span className="value">{weatherData.pressure} hPa</span>
                         </div>
                         <div className="detail-item">
-                            <span className="lable">Humidity:</span>
+                            <span className="label">Humidity:</span>
                             <span className="value">{weatherData.humidity}%</span>
                         </div>
                         <div className="detail-item">
-                            <span className="lable">Visibility:</span>
-                            <span className="value">{weatherData.visibility}km</span>
+                            <span className="label">Visibility:</span>
+                            <span className="value">{weatherData.visibility ? (weatherData.visibility / 1000) : ''} km</span>
                         </div>
                     </div>
 
                     <div className ="detail-row">
                         <div className="detail-item">
-                            <span className="lable">wind:</span>
-                            <span className="value">{weatherData.windSpeed}m/s{weatherData.windDirection}</span>
+                            <span className="label">Wind:</span>
+                            <span className="value">{weatherData.windSpeed} m/s {weatherData.windDirection}</span>
                         </div>
                     </div>    
 
                      <div className ="detail-row">
                         <div className="detail-item">
-                            <span className="lable">Sunrise:</span>
-                            <span className="value">{weatherData.sunrise}</span>
+                            <span className="label">Sunrise:</span>
+                            <span className="value">{formatTime(weatherData.sunrise)}</span>
                         </div>
                         <div className="detail-item">
-                            <span className="lable">Sunset:</span>
-                            <span className="value">{weatherData.sunset}</span>
+                            <span className="label">Sunset:</span>
+                            <span className="value">{formatTime(weatherData.sunset)}</span>
                         </div>
                     </div> 
                 </div>
 
+                {/* Save button at bottom */}
+                <button
+                    style={{
+                        marginTop: '1.5rem',
+                        width: '100%',
+                        padding: '0.8rem',
+                        background: '#0d6a5959',
+                        color: '#0c2a47ff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '1.1rem',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                    }}
+                    onClick={handleSaveToDashboard}
+                >
+                    Save to Dashboard
+                </button>
+                {savedMsg && (
+                    <div style={{textAlign: 'center', color: '#0984e3', marginTop: '0.5rem', fontWeight: 500}}>
+                        {savedMsg}
+                    </div>
+                )}
                 </>
             )}
-
-
-
-
-
-
 
         </div>      
     </div>
   )
 }
 
-export default Weather 
-
-
-//<div className = "search-bar">
-  //          <input type = "text" placeholder = 'Search city name'/>
-  ///          <FaSearch className="search-icon" />
-   // /    </div>
-     //   <img src={clear_icon} alt="weather icon" className='weather-icon'/>
-       // <h2 className='city'>Colombo</h2> 
- //       <h2 className='temperature'>25°C</h2>  
-   //     <h3 className='description'>Clear Sky</h3>
-     //   <div className='weather-data'>
-       //     <div className='col'>
-         //       <img src={humidity_icon} alt="humidity icon" className='weather-data-icon'/>
-           //     <div>
-             //   <span className='label'>Humidity:</span>
-               // <span className='value'>60%</span>
-//                </div>
-  //          </div>
-    //        <div className='detail-item'>
-      //          <span className='label'>Wind Speed:</span>
-        //        <span className='value'>10 km/h</span>
-          //  </div>
- //           <div className='detail-item'>
-   //             <span className='label'>Pressure:</span>
-     //           <span className='value'>1015 hPa</span>
-       //     </div> 
-         //   </div>
+export default Weather
