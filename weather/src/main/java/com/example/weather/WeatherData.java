@@ -1,6 +1,9 @@
 package com.example.weather;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 public class WeatherData {
     private String cityCode;
@@ -8,11 +11,15 @@ public class WeatherData {
 
     @JsonProperty("weather")
     private Weather[] weather;
+
     @JsonProperty("main")
     private Main main;
 
-    @JsonProperty("syst")
-    private Syst syst;
+    @JsonProperty("sys")
+    private Sys sys;
+
+    @JsonProperty("wind")
+    private Wind wind;
 
     private long visibility;
 
@@ -29,6 +36,7 @@ public class WeatherData {
             this.description = description;
         }
     }
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Main {
         private double temp;
         private int humidity;
@@ -74,12 +82,11 @@ public class WeatherData {
             this.pressure = pressure;
         }   
     }
-    public static class Syst {
+    public static class Sys {
         private String country;
         private long sunrise;
         private long sunset;
-        private double windSpeed;
-        private String windDirection;
+        
 
         public long getSunrise() {
             return sunrise;
@@ -101,25 +108,13 @@ public class WeatherData {
         public void setCountry(String country) {
             this.country = country;
         }
-        public double getWindSpeed() {
-            return windSpeed;
-        }
-        public void setWindSpeed(double windSpeed) {
-            this.windSpeed = windSpeed;
-        }
-
-        public String getWindDirection() {
-            return windDirection;
-        }   
-        public void setWindDirection(String windDirection) {
-            this.windDirection = windDirection;
-        }
+        
     }
 
-        public String getCitycode() {
+        public String getCityCode() {
             return cityCode;
         }
-        public void setCitycode(String cityCode) {
+        public void setCityCode(String cityCode) {
             this.cityCode = cityCode;
         }
         public String getCityName() {
@@ -140,11 +135,11 @@ public class WeatherData {
         public void setMain(Main main) {
             this.main = main;
         }
-        public Syst getSyst() {
-            return syst;
+        public Sys getSys() {
+            return sys;
         }
-        public void setSyst(Syst syst) {
-            this.syst = syst;
+        public void setSys(Sys sys) {
+            this.sys = sys;
         }
         public long getVisibility() {
             return visibility;
@@ -152,7 +147,33 @@ public class WeatherData {
         public void setVisibility(long visibility) {
             this.visibility = visibility;
         }
-    
+
+
+public static class Wind {
+        private double windSpeed;
+        private String windDirection;
+
+    public double getWindSpeed() {
+            return windSpeed;
+        }
+        public void setWindSpeed(double windSpeed) {
+            this.windSpeed = windSpeed;
+        }
+
+        public String getWindDirection() {
+            return windDirection;
+        }   
+        public void setWindDirection(String windDirection) {
+            this.windDirection = windDirection;
+        }
+}
+
+ public Wind getWind() {
+            return wind;
+        }
+        public void setWind(Wind wind) {
+            this.wind = wind;
+        }
 
     
 }

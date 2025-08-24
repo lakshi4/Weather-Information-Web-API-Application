@@ -1,0 +1,125 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(120deg, #2140a68d 20%, #0a2f54 80%);
+  padding: 2rem 0;
+}
+
+.dashboard h2 {
+  font-size: 2.2rem;
+  color: #fff;
+  margin-bottom: 2rem;
+  font-weight: 700;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #b2bec3;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.search-bar input:focus {
+  border-color: #74ebd5;
+}
+
+.search-bar button {
+  background: #74ebd584;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  color: #2c3e50;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-bar button:hover {
+  background: #ACB6E5;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  width: 90vw;
+  max-width: 1200px;
+}
+
+.weatherCard {
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.18);
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: box-shadow 0.2s;
+}
+
+.weatherCard h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.weatherCard p {
+  font-size: 1rem;
+  color: #636e72;
+  margin: 0.3rem 0;
+  text-align: center;
+}
+
+.error {
+  color: #d63031;
+  font-weight: 500;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.loading {
+  color: #fff;
+  font-weight: 500;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .dashboard {
+    padding: 1rem 0.2rem;
+  }
+  .weatherCard {
+    padding: 1rem 0.5rem;
+    max-width: 95vw;
+  }
+  .dashboard h2 {
+    font-size: 1.3rem;
+  }
+  .weatherCard h3 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+}
